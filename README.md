@@ -1,19 +1,20 @@
-# SAS-Mini-Project
-"Clinical Trial Data Analysis using SAS (SDTM, ADaM, TLF generation)"
-# SAS Clinical Mini Project
+# SAS Mini Project – Clinical Trial Simulation
 
-This mini-project demonstrates a simple **clinical trial data workflow** using SAS:
+This project demonstrates an end-to-end clinical trial workflow using SAS:
 
-- **Step 1:** Create SDTM VS domain dataset (glucose measurements per subject and visit)  
-- **Step 2:** Transform SDTM → ADaM analysis dataset (ADVS)  
-- **Step 3:** Generate TLFs:
-  - Table: Mean glucose by visit & treatment group
-  - Figure: Boxplot of glucose by visit & group  
-- **Step 4:** Export CSVs & figure for reporting
+- Created raw **Demographics & Glucose datasets**
+- Converted into **SDTM Vital Signs dataset**
+- Developed **ADaM dataset** for statistical analysis
+- Generated **TLFs (Tables, Listings, Figures)**
+- Exported results into CSV for reporting
 
-**Tools:** SAS OnDemand for Academics  
+### Files
+- `SAS Mini Project.sas` → Main SAS code
+- `sdtm_vs.csv` → SDTM dataset
+- `adam_advs.csv` → ADaM dataset
+- `tlf_table.csv`, `tlf_week8.csv` → TLF outputs
+- `plot_means.csv` → Mean glucose trends
 
-**Subjects:** Sushant, Aniket, Pooja, Shweta, Somashekhar  
-**Groups:** Drug vs Placebo  
+---
 
-All files in this repository can be run directly in SAS OnDemand.
+📌 This mini-project replicates an **industry-standard clinical data pipeline** from raw data to submission-ready outputs.
