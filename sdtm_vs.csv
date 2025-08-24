@@ -1,0 +1,19 @@
+USUBJID,TRTGRP,AGE,SEX,VSTEST,VSORRES,VSTPT
+Aniket,Drug,50,F,Fasting Glucose,200,Week0
+Aniket,Drug,50,F,Fasting Glucose,170,Week4
+Aniket,Drug,50,F,Fasting Glucose,140,Week8
+Pooja,Drug,47,F,Fasting Glucose,190,Week0
+Pooja,Drug,47,F,Fasting Glucose,160,Week4
+Pooja,Drug,47,F,Fasting Glucose,150,Week8
+Sakshi,Placebo,49,M,Fasting Glucose,178,Week0
+Sakshi,Placebo,49,M,Fasting Glucose,176,Week4
+Sakshi,Placebo,49,M,Fasting Glucose,175,Week8
+Shweta,Placebo,52,F,Fasting Glucose,185,Week0
+Shweta,Placebo,52,F,Fasting Glucose,182,Week4
+Shweta,Placebo,52,F,Fasting Glucose,181,Week8
+Somashekhar,Placebo,48,M,Fasting Glucose,195,Week0
+Somashekhar,Placebo,48,M,Fasting Glucose,193,Week4
+Somashekhar,Placebo,48,M,Fasting Glucose,192,Week8
+Sushant,Drug,45,M,Fasting Glucose,180,Week0
+Sushant,Drug,45,M,Fasting Glucose,150,Week4
+Sushant,Drug,45,M,Fasting Glucose,130,Week8

@@ -1,0 +1,182 @@
+/* ===========================
+   1) Create demographics (in-SAS)
+   =========================== */
+data demog;
+    infile datalines dsd truncover;
+    input USUBJID :$15. TRTGRP :$10. AGE SEX :$1.;
+    datalines;
+Sushant,Drug,45,M
+Aniket,Drug,50,F
+Pooja,Drug,47,F
+Shweta,Placebo,52,F
+Somashekhar,Placebo,48,M
+Sakshi,Placebo,49,M
+;
+run;
+proc print data=demog (obs=6) noobs; title "DEMOGRAPHICS"; run;
+/* ===========================
+    2) Create glucose (SDTM-like source)
+   =========================== */
+data glucose;
+    infile datalines dsd truncover;
+    input USUBJID :$15. VISIT :$10. GLUC;
+    datalines;
+Sushant,Week0,180
+Sushant,Week4,150
+Sushant,Week8,130
+Aniket,Week0,200
+Aniket,Week4,170
+Aniket,Week8,140
+Pooja,Week0,190
+Pooja,Week4,160
+Pooja,Week8,150
+Shweta,Week0,185
+Shweta,Week4,182
+Shweta,Week8,181
+Somashekhar,Week0,195
+Somashekhar,Week4,193
+Somashekhar,Week8,192
+Sakshi,Week0,178
+Sakshi,Week4,176
+Sakshi,Week8,175
+;
+run;
+proc print data=glucose (obs=18) noobs; title "GLUCOSE (raw)"; run;
+
+/* ===========================
+   3) Sort before merge
+   =========================== */
+proc sort data=demog; by USUBJID; run;
+proc sort data=glucose; by USUBJID VISIT; run;
+
+/* ===========================
+   4) Create SDTM-like VS dataset
+   (this mimics SDTM VS domain)
+   =========================== */
+
+data sdtm_vs;
+    merge demog(in=a) glucose(in=b);
+    by USUBJID;
+    if a and b;  /* keep only matches */
+    VSTEST = "Fasting Glucose";
+    VSORRES = GLUC;     /* original result */
+    VSTPT = VISIT;      /* visit/timepoint */
+    keep USUBJID TRTGRP AGE SEX VSTEST VSORRES VSTPT;
+run;
+
+proc print data=sdtm_vs noobs; title "SDTM.VS (merged)"; run;
+
+/* ===========================
+   5) Create ADaM-like analysis dataset (ADVS)
+      - map VSTPT→AVISIT, VSORRES→AVAL
+      - create numeric visit order (AVISITN)
+      - derive baseline (BASE) and change (CHG)
+   =========================== */
+data adam_advs;
+    set sdtm_vs;
+    AVISIT = VSTPT;
+    /* numeric visit order for sorting/plotting */
+    if upcase(AVISIT) = "WEEK0" then AVISITN = 0;
+    else if upcase(AVISIT) = "WEEK4" then AVISITN = 4;
+    else if upcase(AVISIT) = "WEEK8" then AVISITN = 8;
+    AVAL = VSORRES;
+run;
+
+proc sort data=adam_advs; by USUBJID AVISITN; run;
+
+/* derive baseline and change-from-baseline */
+data adam_advs;
+    set adam_advs;
+    by USUBJID;
+    retain BASE;
+    if first.USUBJID then BASE = .;
+    if AVISITN = 0 then BASE = AVAL;   /* baseline is Week0 value */
+    if not missing(BASE) then CHG = AVAL - BASE;
+    keep USUBJID TRTGRP AGE SEX AVISIT AVISITN AVAL BASE CHG;
+run;
+
+proc print data=adam_advs noobs; title "ADAM.ADVS (analysis dataset)"; run;
+
+/* ===========================
+   6) Create TLF summaries
+      - overall means (by group & visit)
+      - Week8 change summary (primary endpoint example)
+   =========================== */
+
+/* mean AVAL by group & visit (for plotting/table) */
+proc means data=adam_advs nway noprint;
+    class TRTGRP AVISIT AVISITN;
+    var AVAL;
+    output out=plot_means mean=Mean_AVAL;
+run;
+
+proc print data=plot_means noobs; title "Mean AVAL by Group & Visit (for plots)"; run;
+
+/* mean change (CHG) by group & visit */
+proc means data=adam_advs nway noprint;
+    class TRTGRP AVISIT AVISITN;
+    var CHG;
+    output out=tlf_table(drop=_type_ _freq_) mean=Mean_CHG std=SD_CHG n=N;
+run;
+
+proc print data=tlf_table noobs; title "TLF: Mean Change from Baseline by Group & Visit"; run;
+
+/* Also extract Week8 only for a primary endpoint table */
+proc means data=adam_advs noprint;
+    where AVISITN = 8;
+    class TRTGRP;
+    var CHG;
+    output out=tlf_week8(drop=_type_ _freq_) mean=Mean_CHG std=SD_CHG n=N;
+run;
+
+proc print data=tlf_week8 noobs; title "TLF (Week8): Change from Baseline by Group"; run;
+
+/* ===========================
+   7) Figure: mean over time (line plot) and boxplot if desired
+   =========================== */
+
+/* line plot of mean AVAL over time by group */
+proc sgplot data=plot_means;
+    series x=AVISITN y=Mean_AVAL / group=TRTGRP markers;
+    xaxis values=(0 4 8) valuesdisplay=("Week0" "Week4" "Week8") label="Visit";
+    yaxis label="Mean Fasting Glucose (mg/dL)";
+    title "Mean Fasting Glucose Over Time by Group";
+run;
+
+/* boxplot of subject-level AVAL by visit grouped by TRTGRP */
+proc sgplot data=adam_advs;
+    vbox AVAL / category=AVISIT group=TRTGRP groupdisplay=cluster;
+    xaxis label="Visit";
+    yaxis label="Fasting Glucose (mg/dL)";
+    title "Boxplot: Glucose by Visit and Group";
+run;
+
+/* ===========================
+   8) Export CSVs (SAS OnDemand-friendly filenames)
+      After running these, download files from Files / Server pane.
+   =========================== */
+%let path = /home/u63324261/SAS MINI PROJECT FOR RESUME;
+proc export data=sdtm_vs
+    outfile="&path/sdtm_vs.csv"
+    dbms=csv replace;
+run;
+
+proc export data=adam_advs
+    outfile="&path/adam_advs.csv"
+    dbms=csv replace;
+run;
+
+proc export data=tlf_table
+    outfile="&path/tlf_table.csv"
+    dbms=csv replace;
+run;
+
+proc export data=tlf_week8
+    outfile="&path/tlf_week8.csv"
+    dbms=csv replace;
+run;
+
+proc export data=plot_means
+    outfile="&path/plot_means.csv"
+    dbms=csv replace;
+run;

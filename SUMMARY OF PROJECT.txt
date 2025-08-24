@@ -1,0 +1,93 @@
+Clinical Trial Data Simulation using SAS
+Designed and executed a mini end-to-end clinical data pipeline in SAS. Created raw demographics and glucose datasets, transformed them into SDTM (Vital Signs) format for regulatory compliance, and developed ADaM datasets for statistical analysis. Generated Tables, Listings, and Figures (TLF) to summarize trends, demonstrating a decrease in glucose levels across visits. Exported datasets to CSV for reporting and cross-functional use. This project replicated industry-standard clinical trial workflows from raw data to submission-ready outputs.
+
+🔹 Purpose of the Project
+
+We wanted to simulate a clinical trial workflow in SAS:
+
+Start with raw glucose data of subjects across visits.
+
+Create SDTM (Study Data Tabulation Model) dataset → standard for regulatory submission.
+
+Derive an ADaM (Analysis Data Model) dataset → ready for statistical analysis.
+
+Produce TLF (Tables, Listings, Figures) to summarize results.
+
+Finally, export to CSV for reporting or visualization.
+
+This mimics what is done in pharma/clinical industry. ✅
+
+🔹 Step-by-Step Work
+1. Demographics Dataset (DM)
+
+We created a dataset with subject information like:
+
+USUBJID (unique subject ID)
+
+AGE, SEX, GROUP (e.g., Treatment/Control)
+
+👉 Purpose: To identify subjects and treatment groups.
+
+2. Vital Signs (SDTM.VS)
+
+We mapped glucose values into SDTM format:
+
+USUBJID – subject ID
+
+VSTPT – visit/timepoint (Week 0, Week 4, Week 8)
+
+VSORRES – observed glucose result
+
+👉 Purpose: Convert raw data into CDISC SDTM standard format used for FDA submissions.
+
+3. ADaM Dataset (ADaM.ADVSL)
+
+We derived analysis-ready variables:
+
+AVAL – analysis value (numeric glucose)
+
+VISIT – visit name
+
+GROUP – treatment group
+
+👉 Purpose: Prepare the dataset so statisticians can run models (ANOVA, mixed models, etc.) easily.
+
+4. Tables, Listings, Figures (TLF)
+
+We summarized the glucose levels across visits & groups:
+
+Used PROC MEANS or PROC SGPLOT for averages and line plots.
+
+Example: Mean glucose decreases from Week 0 → Week 8 in the treatment group.
+
+👉 Purpose: TLF is what goes into clinical study reports (CSR).
+
+5. Export to CSV
+
+We used PROC EXPORT to save results as .csv:
+
+sdtm_vs.csv
+
+adam_advs.csv
+
+👉 Purpose: To share datasets with other teams (statisticians, data managers, visualization tools like R/Python/Tableau).
+
+🔹 Results (What We Saw)
+
+Glucose Levels decreased in subjects over weeks (Week 0 high, Week 8 lower).
+
+Shows that treatment/control separation can be analyzed.
+
+Example (from your data):
+
+Week 0 average: ~188 mg/dL
+
+Week 4 average: ~172 mg/dL
+
+Week 8 average: ~161 mg/dL
+→ Indicates improvement in glucose control.
+
+🔹 In One Line:
+
+We built a mini clinical data pipeline in SAS:
+Raw Data → SDTM (standardized) → ADaM (analysis-ready) → TLF (results) → Export (CSV).
